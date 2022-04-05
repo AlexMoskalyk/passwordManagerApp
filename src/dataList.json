@@ -1,0 +1,5 @@
+[
+  { "id": "id-1", "name": "google", "login": "alex", "password": "123qwe " },
+  { "id": "id-2", "name": "github", "login": "alex", "password": "123qwe " },
+  { "id": "id-3", "name": "github", "login": "alex", "password": "123qwe " }
+]
