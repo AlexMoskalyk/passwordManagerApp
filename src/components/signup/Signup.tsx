@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { signup } from '../../firebaseAuth/FirebaseAuth';
 import './Signup.css';
 import { Button, TextField } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const initialState = {
   email: '',
@@ -10,6 +11,7 @@ const initialState = {
 
 const Signup = () => {
   const [state, setState] = useState(initialState);
+  const navigate = useNavigate();
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
@@ -24,6 +26,7 @@ const Signup = () => {
       alert(error);
     }
     setState(initialState);
+    navigate('/dashboard');
   };
 
   return (
