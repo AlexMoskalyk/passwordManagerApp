@@ -1,41 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import initialDataList from '../dataList.json';
-import DataList from './dataList/DataList';
-import IData from '../interfaces/Data.interface';
-import DataItemEditor from './dataItemEditor/DataItemEditor';
-import shortid from 'shortid';
+import IRecord from '../interfaces/Data.interface';
+import axios from 'axios';
+import { Routes, Route } from 'react-router-dom';
+import DashboradPage from '../pages/DashboradPage';
+import LoginPage from '../pages/LoginPage';
+import SignUpPage from '../pages/SignUpPage';
 
-const getInitialData = () => {
-  const savedData = localStorage.getItem('data');
-  return savedData ? JSON.parse(savedData) : [];
+import NotFoundPage from '../pages/NotFoundPage';
+import { useAuth } from '../hook/useAuth';
+import { Container } from '@mui/material';
+import Navbar from './navbar/Navbar';
+
+const initialState: { records: IRecord[]; showPassword: boolean } = {
+  records: [],
+  showPassword: false,
 };
 
 const App = () => {
-  const [data, setData] = useState<IData[]>(getInitialData);
+  const [state, setState] = useState(initialState);
+  const user = useAuth().user;
 
   useEffect(() => {
-    localStorage.setItem('data', JSON.stringify(data));
-  }, [data]);
+    axios
+      .get(
+        `https://passwordmanagerapp-c6114-default-rtdb.firebaseio.com/dataList.json`,
+      )
+      .then(res => {
+        const keys = Object.keys(res.data);
+        const records = keys.map(key => ({ id: key, ...res.data[key] }));
+        setState(prev => ({
+          showPassword: prev.showPassword,
+          records: records,
+        }));
+      });
+  }, []);
 
-  const deleteDataItem = (dataId: string) => {
-    setData(data => data.filter(data => data.id !== dataId));
+  const togglePassword = () => {
+    setState(prev => ({ ...prev, showPassword: !prev.showPassword }));
   };
 
-  const addDataItem = (title: string, login: string, password: string) => {
-    const dataItem = {
-      id: shortid.generate(),
-      title,
-      login,
-      password,
-    };
-    console.log(dataItem);
-    setData(data => [dataItem, ...data]);
+  const deleteDataItem = (id: string) => {
+    axios
+      .delete(
+        `https://passwordmanagerapp-c6114-default-rtdb.firebaseio.com/dataList/${id}.json`,
+      )
+      .then(() => {
+        setState(prev => ({
+          showPassword: prev.showPassword,
+          records: prev.records.filter(record => record.id !== id),
+        }));
+      });
+  };
+
+  const addDataItem = (record: IRecord) => {
+    setState(prev => ({ ...prev, records: [...prev.records, record] }));
   };
 
   return (
     <>
-      <DataItemEditor addDataItem={addDataItem} />
-      <DataList data={data} deleteDataItem={deleteDataItem} />
+      <Navbar />
+      <Container fixed>
+        <Routes>
+          {user && (
+            <Route
+              path="/dashboard"
+              element={
+                <DashboradPage
+                  togglePassword={togglePassword}
+                  records={state.records}
+                  deleteDataItem={deleteDataItem}
+                  addDataItem={addDataItem}
+                  showPassword={state.showPassword}
+                />
+              }
+            />
+          )}
+
+          <Route path="/" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Container>
     </>
   );
 };

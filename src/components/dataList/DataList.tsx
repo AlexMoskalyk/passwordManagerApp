@@ -1,44 +1,43 @@
-import React, { useState } from 'react';
-import IData from '../../interfaces/Data.interface';
+import React from 'react';
+import IRecords from '../../interfaces/Data.interface';
+import {
+  Grid,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  CardActions,
+} from '@mui/material';
 
 interface Props {
-  data: IData[];
-  deleteDataItem: (dataId: string) => void;
+  records: IRecords[];
+  showPassword: boolean;
+
+  deleteDataItem: (id: string) => void;
 }
 
-const DataList = ({ data, deleteDataItem }: Props) => {
-  const [dataItem, setDataItem] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-
-  const getItemId = (dataId: string) => {
-    data.find(item => item.id === dataId ?? setShowPassword(true));
-  };
-
+const DataList = ({ records, showPassword, deleteDataItem }: Props) => {
   return (
-    <ul>
-      {data.map(({ id, title, login, password }) => (
-        <li key={id}>
-          <p>
-            <span>Title:</span>
-            {title}
-          </p>
-          <p>
-            <span>Login:</span>
-            {login}
-          </p>
-          <div>
-            <p>
-              <span>Password:</span>
-              {showPassword ? password : '**********'}
-            </p>
-            <button type="button">Show password</button>
-          </div>
-          <button type="button" onClick={() => deleteDataItem(id)}>
-            Delete
-          </button>
-        </li>
+    <Grid container spacing={3}>
+      {records.map(({ id, title, login, password }) => (
+        <Grid item key={id}>
+          <Card sx={{ width: 350 }}>
+            <CardContent>
+              <Typography variant="h6">Title: {title}</Typography>
+              <Typography variant="h6">Login: {login}</Typography>
+              <Typography variant="h6">
+                Password: {showPassword ? password : '**********'}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button type="button" onClick={() => deleteDataItem(id)}>
+                Delete
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
       ))}
-    </ul>
+    </Grid>
   );
 };
 

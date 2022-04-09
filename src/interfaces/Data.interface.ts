@@ -1,4 +1,4 @@
-export default interface IData {
+export default interface IRecords {
   id: string;
   title: string;
   login: string;

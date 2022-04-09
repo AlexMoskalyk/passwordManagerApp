@@ -1,73 +1,86 @@
+import axios from 'axios';
 import React, { useState } from 'react';
+import IRecords from '../../interfaces/Data.interface';
+import './DataItemEditor.css';
+import { Button, TextField } from '@mui/material';
 
 interface Props {
-  addDataItem: (name: string, login: string, password: string) => void;
+  records: IRecords[];
+  addDataItem: (record: IRecords) => void;
+  togglePassword: () => void;
 }
 
-const DataItemEditor = ({ addDataItem }: Props) => {
-  const [title, setTitle] = useState('');
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
+const initialState = {
+  title: '',
+  login: '',
+  password: '',
+};
+
+const DataItemEditor = ({ addDataItem, records, togglePassword }: Props) => {
+  const [state, setState] = useState({ ...initialState });
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
-    switch (name) {
-      case 'title':
-        setTitle(value);
-
-        break;
-      case 'login':
-        setLogin(value);
-
-        break;
-      case 'password':
-        setPassword(value);
-        break;
-
-      default:
-        break;
-    }
+    setState(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    axios
+      .post(
+        `https://passwordmanagerapp-c6114-default-rtdb.firebaseio.com/dataList.json`,
+        state,
+      )
+      .then(res => {
+        addDataItem({ ...state, id: res.data.name });
+        reset();
+      });
+  };
 
-    addDataItem(title, login, password);
-    setTitle('');
-    setLogin('');
-    setPassword('');
+  const reset = () => {
+    setState(initialState);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        <input
-          type="text"
-          name="title"
-          placeholder="Title"
-          value={title}
-          onChange={onChange}
-        />
-      </label>
-      <label>
-        <input
-          type="text"
-          name="login"
-          placeholder="Login"
-          value={login}
-          onChange={onChange}
-        />
-      </label>
-      <label>
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={password}
-          onChange={onChange}
-        />
-      </label>
-      <button type="submit">Create</button>
+    <form onSubmit={handleSubmit} className="form">
+      <TextField
+        variant="standard"
+        type="text"
+        name="title"
+        label="Title"
+        value={state.title}
+        onChange={onChange}
+      />
+
+      <TextField
+        variant="standard"
+        type="text"
+        name="login"
+        label="Login"
+        value={state.login}
+        onChange={onChange}
+      />
+
+      <TextField
+        variant="standard"
+        type="password"
+        name="password"
+        label="Password"
+        value={state.password}
+        onChange={onChange}
+      />
+
+      <Button
+        type="submit"
+        disabled={!(state.title && state.login && state.password)}
+      >
+        Create
+      </Button>
+      {records.length !== 0 && (
+        <Button type="button" onClick={togglePassword}>
+          show password
+        </Button>
+      )}
     </form>
   );
 };
