@@ -9,9 +9,11 @@ interface Props {
   deleteDataItem: (id: string) => void;
   addDataItem: (record: IRecords) => void;
   togglePassword: () => void;
+  updateItem: (id: string, record: IRecords) => void;
 }
 
 const DashboradPage = ({
+  updateItem,
   records,
   showPassword,
   deleteDataItem,
@@ -26,6 +28,7 @@ const DashboradPage = ({
         togglePassword={togglePassword}
       />
       <DataList
+        updateItem={updateItem}
         records={records}
         showPassword={showPassword}
         deleteDataItem={deleteDataItem}

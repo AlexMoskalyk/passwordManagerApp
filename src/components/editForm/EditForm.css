@@ -1,0 +1,9 @@
+.form__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.form__item {
+  padding-bottom: 15px;
+}

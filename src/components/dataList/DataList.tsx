@@ -1,5 +1,6 @@
 import React from 'react';
 import IRecords from '../../interfaces/Data.interface';
+import Modal from '../modal/Modal';
 import {
   Grid,
   Button,
@@ -8,36 +9,36 @@ import {
   Typography,
   CardActions,
 } from '@mui/material';
+import DataItem from './dataItem/DataItem';
+import EditForm from '../editForm/EditForm';
 
 interface Props {
   records: IRecords[];
   showPassword: boolean;
-
+  updateItem: (id: string, record: IRecords) => void;
   deleteDataItem: (id: string) => void;
 }
 
-const DataList = ({ records, showPassword, deleteDataItem }: Props) => {
+const DataList = ({
+  records,
+  showPassword,
+  deleteDataItem,
+  updateItem,
+}: Props) => {
   return (
-    <Grid container spacing={3}>
-      {records.map(({ id, title, login, password }) => (
-        <Grid item key={id}>
-          <Card sx={{ width: 350 }}>
-            <CardContent>
-              <Typography variant="h6">Title: {title}</Typography>
-              <Typography variant="h6">Login: {login}</Typography>
-              <Typography variant="h6">
-                Password: {showPassword ? password : '**********'}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button type="button" onClick={() => deleteDataItem(id)}>
-                Delete
-              </Button>
-            </CardActions>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
+    <>
+      <Grid container spacing={3}>
+        {records.map(record => (
+          <DataItem
+            updateItem={updateItem}
+            key={record.id}
+            record={record}
+            showPassword={showPassword}
+            deleteDataItem={deleteDataItem}
+          />
+        ))}
+      </Grid>
+    </>
   );
 };
 
